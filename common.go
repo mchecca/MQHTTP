@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -17,6 +19,15 @@ func getHTTPRequestTopic(id string, requestID string) string {
 
 func getHTTPResponseTopic(id string, requestID string) string {
 	return fmt.Sprintf(httpResponseTopicFmt, id, requestID)
+}
+
+func getRequestIDFromTopic(topic string) (string, error) {
+	topicSplit := strings.Split(topic, "/")
+	requestID := topicSplit[3]
+	if len(requestID) == 0 {
+		return "", errors.New("Invalid topic: " + topic)
+	}
+	return requestID, nil
 }
 
 func sendMqttMessage(mqttBrokerURL string, topic string, msg []byte) {

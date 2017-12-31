@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -20,10 +19,9 @@ type client struct {
 }
 
 func (c client) httpRequestHandler(client mqtt.Client, msg mqtt.Message) {
-	topicSplit := strings.Split(msg.Topic(), "/")
-	requestID := topicSplit[3]
-	if len(requestID) == 0 {
-		log.Println("Invalid topic: " + msg.Topic())
+	requestID, err := getRequestIDFromTopic(msg.Topic())
+	if err != nil {
+		log.Printf("Error: %v\n", err)
 		return
 	}
 	topic := getHTTPResponseTopic(c.ID, requestID)
