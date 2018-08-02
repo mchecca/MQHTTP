@@ -42,7 +42,11 @@ func (s server) handler(w http.ResponseWriter, h *http.Request) {
 		http.Error(w, "MQHTTP-Client-ID header not present", http.StatusBadRequest)
 		return
 	}
-	requestID := uuid.NewV4()
+	requestID, err := uuid.NewV4()
+	if err != nil {
+		http.Error(w, "Unable to generate UUID", http.StatusInternalServerError)
+		return
+	}
 	log.Printf("%s %s %s\n", requestID, h.Method, h.URL.Path)
 	rawRequest, err := httputil.DumpRequest(h, true)
 	if err != nil {
